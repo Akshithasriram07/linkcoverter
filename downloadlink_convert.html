@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Google Drive Download Link Converter</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(135deg, #4285F4, #EA4335, #FBBC05, #34A853); /* Google colors */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 100px;
+      min-height: 100vh;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      width: 500px;
+      max-width: 90%;
+    }
+    input, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    input[readonly] {
+      background-color: #f1f5f9;
+      color: #374151;
+    }
+    button {
+      background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853); /* Google colors */
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out;
+    }
+    button:hover {
+      transform: scale(1.03);
+    }
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Drive Link to Download Link</h2>
+    <input type="text" id="driveLink" placeholder="Paste your Google Drive link here">
+    <input type="text" id="downloadLink" placeholder="Converted download link will appear here" readonly>
+    <button onclick="convertLink()">Convert & Copy</button>
+    <p id="result"></p>
+  </div>
+
+  <script>
+    async function convertLink() {
+      const input = document.getElementById('driveLink').value.trim();
+      const fileIdMatch = input.match(/(?:\/d\/|id=)([a-zA-Z0-9_-]{25,})/);
+
+      const resultElem = document.getElementById('result');
+      const output = document.getElementById('downloadLink');
+
+      if (!fileIdMatch) {
+        resultElem.textContent = "❌ Invalid Google Drive link!";
+        resultElem.style.color = "red";
+        output.value = "";
+        return;
+      }
+
+      const fileId = fileIdMatch[1];
+      const downloadLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+      output.value = downloadLink;
+
+      try {
+        await navigator.clipboard.writeText(downloadLink);
+        resultElem.textContent = "✅ Download link copied to clipboard!";
+        resultElem.style.color = '#16a34a';
+      } catch (err) {
+        console.error(err);
+        output.select();
+        output.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+        resultElem.textContent = "✅ Link copied using fallback method!";
+        resultElem.style.color = '#10b981';
+      }
+    }
+  </script>
+</body>
+</html>
+
